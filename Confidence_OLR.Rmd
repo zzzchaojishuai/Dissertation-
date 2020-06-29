@@ -1,0 +1,139 @@
+---
+title: "Confidence_Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+require(foreign)
+require(ggplot2)
+require(MASS)
+require(Hmisc)
+require(reshape2)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+```
+
+
+```{r}
+NHSData_Unencode <- read.csv(file = '1718nhs_r.csv')
+head(NHSData_Unencode)
+
+NHSData_Noencode <- read.csv(file = '1718nhs_r_unencode.csv')
+head(NHSData_Noencode)
+
+```
+```{r}
+lapply(NHSData_Unencode[, c("confidence_level", "Gender", "SupportParty",'Religon','Nationity','Marriage')], table)
+```
+
+
+```{r}
+lapply(NHSData_Noencode[, c("confidence_level", "Gender", "SupportParty",'Religon','Nationity','Marriage')], table)
+```
+```{r}
+for(unique_value in unique(NHSData_Unencode$Marriage)){
+ 
+
+NHSData_Unencode[paste("Marriage", unique_value, sep = ".")] <- ifelse(NHSData_Unencode$Marriage == unique_value, 1, 0)
+}
+
+```
+```{r}
+for(unique_value in unique(NHSData_Unencode$SupportParty)){
+ 
+
+NHSData_Unencode[paste("SupportParty", unique_value, sep = ".")] <- ifelse(NHSData_Unencode$SupportParty == unique_value, 1, 0)
+}
+```
+
+```{r}
+for(unique_value in unique(NHSData_Unencode$Religon)){
+ 
+
+NHSData_Unencode[paste("Religon", unique_value, sep = ".")] <- ifelse(NHSData_Unencode$Religon == unique_value, 1, 0)
+}
+```
+
+```{r}
+for(unique_value in unique(NHSData_Unencode$Nationity)){
+ 
+
+NHSData_Unencode[paste("Nationity", unique_value, sep = ".")] <- ifelse(NHSData_Unencode$Nationity == unique_value, 1, 0)
+}
+```
+
+```{r}
+for(unique_value in unique(NHSData_Unencode$Gender)){
+ 
+
+NHSData_Unencode[paste("Gender", unique_value, sep = ".")] <- ifelse(NHSData_Unencode$Gender == unique_value, 1, 0)
+}
+```
+
+
+```{r}
+head(NHSData_Unencode)
+```
+
+```{r}
+m1 <- polr(as.factor(confidence_level) ~ Gender + Marriage + SupportParty + Religon + Nationity + Color , data = NHSData_Noencode, Hess=TRUE)
+summary(m1)
+```
+
+```{r}
+ctable <- coef(summary(m1))
+
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p))
+```
+
+```{r}
+m2 <- polr(as.factor(confidence_level) ~ Gender  + SupportParty + Religon + Nationity + Color , data = NHSData_Noencode, Hess=TRUE)
+summary(m2)
+```
+
+```{r}
+ctable2 <- coef(summary(m2))
+
+p <- pnorm(abs(ctable2[, "t value"]), lower.tail = FALSE) * 2
+(ctable2 <- cbind(ctable2, "p value" = p))
+```
+
+```{r}
+m3 <- polr(as.factor(confidence_level) ~ Gender + Marriage + Religon + Nationity + Color , data = NHSData_Noencode, Hess=TRUE)
+summary(m3)
+ctable3 <- coef(summary(m3))
+p <- pnorm(abs(ctable3[, "t value"]), lower.tail = FALSE) * 2
+(ctable3 <- cbind(ctable3, "p value" = p))
+```
+
+```{r}
+m4 <- polr(as.factor(confidence_level) ~ Gender + Marriage + SupportParty + Nationity + Color , data = NHSData_Noencode, Hess=TRUE)
+summary(m4)
+ctable4 <- coef(summary(m4))
+p <- pnorm(abs(ctable4[, "t value"]), lower.tail = FALSE) * 2
+(ctable4 <- cbind(ctable4, "p value" = p))
+```
+
+```{r}
+m5 <- polr(as.factor(confidence_level) ~ Gender + Marriage + SupportParty + Religon + Color , data = NHSData_Noencode, Hess=TRUE)
+summary(m5)
+ctable5 <- coef(summary(m5))
+p <- pnorm(abs(ctable5[, "t value"]), lower.tail = FALSE) * 2
+(ctable5 <- cbind(ctable5, "p value" = p))
+```
+
+
+```{r}
+
+m1 <- polr(as.factor(confidence_level) ~ 
+             Marriage.Married + Marriage.Not_married + Marriage.Living_as_married + Marriage.Widowed + Marriage.Separated_after_marrying 
+           + SupportParty.Labour + SupportParty.Conservative + SupportParty.None + SupportParty.UKIP + SupportParty.Plaid_Cymru + SupportParty.Green_Party + SupportParty.Liberal_Democrat + SupportParty.Scottish_National_Party + SupportParty.other + SupportParty.BNP + SupportParty.TUSC 
+           + Religon.No_religion + Religon.Other_Christian + Religon.Church_of_England + Religon.Roman_Catholic+ Religon.Non_Christian
+           + Nationity.English+Nationity.British + Nationity.Other + Nationity.European+Nationity.Scottish + Nationity.Welsh
+           + Gender.Female + Gender.Male, data = NHSData_Unencode, Hess=TRUE)
+
+```
+
